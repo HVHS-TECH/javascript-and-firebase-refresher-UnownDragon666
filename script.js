@@ -1,2 +1,4 @@
-var messageSpace = getElementbyId("welcomeMessage");
-messageSpace.innerHTML = "You've connected to the JavaScript!";
+console.log("Hello");
+let element = document.getElementById("welcomeMessage");
+console.log(element);
+
