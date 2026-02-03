@@ -6,7 +6,7 @@
 </head>
 
 
-<body>
+<body onload="init()">
 
     <h1 id="message">You haven't connected the JavaScript yet</h1>
 
@@ -16,11 +16,8 @@
         <label for="i_text">TEXT INPUT</label> <br>
         <input id="i_text" type="text" placeholder="ENTER TEXT">
         <button onclick="buttonClick()">Submit</button> <br>
-        <li>The button puts the text in the heading</li>
-        <li>Get rid of the alert - the button updates the heading of this page</li>
     </ul>
     <h4>Firebase basics</h4>
-
     <ul>
         <li>Create a new Firebase or re-use yours from last year</li>
         <li>Remember how to connect up the 'authorised domains'</li>
@@ -44,4 +41,5 @@
         By the end of the week you will have Firebase going.</p>
 </body>
 <script src="script.js"></script>
+<script type="module" src="fb/fb_main.mjs"></script>
 </html>
