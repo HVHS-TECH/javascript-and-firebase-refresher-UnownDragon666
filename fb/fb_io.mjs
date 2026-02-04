@@ -15,8 +15,9 @@ import { GoogleAuthProvider, getAuth, signOut, signInWithPopup, onAuthStateChang
 // Exports
 export var [database, app] = fb_initialise();
 export {
-    fb_initialise
-}
+    fb_initialise, fb_writeRec, fb_readRec, fb_profileAuthState,
+    fb_authenticate, fb_logout
+};
 
 /*******************************************************/
 // fb_initialise()
@@ -46,3 +47,119 @@ function fb_initialise() {
     const database = getDatabase(app);
     return [database, app];
 }
+
+
+/*******************************************************/
+// fb_authenticate()
+// Authenticate with Google
+// Called in index.html, by button in sidebar
+// Input: N/A
+// Returns: N/A
+/*******************************************************/
+function fb_authenticate() {
+    console.log('%c fb_authenticate(): ',
+        'color: ' + COL_C + '; background-color: ' + COL_B + ';');
+
+    return new Promise((resolve, reject) => {
+        const auth = getAuth();
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                resolve(user);
+            } else {
+                signInWithPopup(auth, provider).then((result) => {
+                    console.log(result);
+                    auth.onAuthStateChanged((user) => {
+                        resolve(user);
+                    })
+                }).catch((error) => {
+                    reject(error);
+                });
+            }
+        })
+    })
+}
+
+
+/*******************************************************/
+// fb_writeRec
+// Write record to Firebase
+// Called in many locations throughout project, including during authertication
+// Input: _path as a string (path to write to), _data as an object (data to write)
+// Returns: N/A
+/*******************************************************/
+function fb_writeRec(_path, _data) {
+    console.log('%c fb_writeRec(): ',
+        'color: ' + COL_C + '; background-color: ' + COL_B + ';');
+
+    const DB = getDatabase();
+    const REF = ref(DB, _path);
+    set(REF, _data).then(() => {
+        console.log('Data written successfully');
+    }).catch((error) => {
+        console.error('Error writing data: ', error);
+    });
+}
+
+
+/*******************************************************/
+// fb_readRec
+// Read record from Firebase
+// Called in fb_authenticate to check if user exists
+// Input: _path as a string (path to read from)
+// Returns: snapshot.val() which is an object containing the data read
+/*******************************************************/
+function fb_readRec(_path) {
+    console.log('%c fb_readRec(): ',
+        'color: ' + COL_C + '; background-color: ' + COL_B + ';');
+
+    const DB = getDatabase();
+    const REF = ref(DB, _path);
+    return get(REF).then((snapshot) => {
+        return snapshot.val();
+    }).catch((error) => {
+        console.error(error);
+    })
+}
+
+/*******************************************************/
+// fb_profileAuthState()
+// Check if user is logged in
+// Called in gmAcc_profile.html
+// Input: N/A
+// Returns: N/A
+/*******************************************************/
+function fb_profileAuthState() {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+        return new Promise((resolve, reject) => {
+            if (user) {
+                resolve(user);
+            } else {
+                reject("No user logged in");
+            }
+        })
+    })
+}
+
+/*******************************************************/
+// fb_logout()
+// Log out of Firebase
+// Called in index.html, by button in sidebar
+// Input: N/A
+// Returns: N/A
+/*******************************************************/
+function fb_logout() {
+    console.log('%c fb_logout(): ',
+        'color: ' + COL_C + '; background-color: ' + COL_B + ';');
+
+    const auth = getAuth();
+    signOut(auth).then(() => {
+        console.log('User signed out');
+    }).catch((error) => {
+        console.error(error);
+    });
+}
+
