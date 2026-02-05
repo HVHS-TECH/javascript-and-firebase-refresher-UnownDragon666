@@ -8,7 +8,7 @@ const COL_B = '#CD7F32';	//  console.log for functions scheme
 console.log('%cfb_io.mjs running', 'color: blue; background-color: white;');
 
 // Imports 
-import { getDatabase, ref, set, get, update, query, limitToLast, orderByChild, serverTimestamp, remove, push } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-database.js";
+import { getDatabase, ref, set, get, update, query, limitToLast, orderByChild, serverTimestamp, remove, push, onValue } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-database.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-app.js";
 import { GoogleAuthProvider, getAuth, signOut, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-auth.js";
 
@@ -18,7 +18,8 @@ export var auth = getAuth();
 
 export {
     fb_initialise, fb_writeRec, fb_readRec, fb_authState,
-    fb_authenticate, fb_logout, getAuth, fb_push
+    fb_authenticate, fb_logout, getAuth, fb_push,
+    fb_query, fb_showMessages
 };
 
 /*******************************************************/
@@ -27,10 +28,6 @@ export {
 // Input: N/A
 // Returns: database, app
 /*******************************************************/
-
-
-
-
 function fb_initialise() {
     console.log('%c fb_initialise(): ',
         'color: ' + COL_C + '; background-color: ' + COL_B + ';');
@@ -53,7 +50,6 @@ function fb_initialise() {
     return [database, app];
 }
 
-
 /*******************************************************/
 // fb_authenticate()
 // Authenticate with Google
@@ -64,21 +60,22 @@ async function fb_authenticate() {
     console.log('%c fb_authenticate(): ',
         'color: ' + COL_C + '; background-color: ' + COL_B + ';');
 
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
+    if (getAuth() == null) {
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
 
-    try {
-        let result = await signInWithPopup(auth, provider)
-        console.log(result);
-    } catch (error) {
-        reject(error);
+        try {
+            let result = await signInWithPopup(auth, provider)
+            console.log(result);
+        } catch (error) {
+            reject(error);
+        }
     }
-
 }
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        
+
     }
 })
 
@@ -100,7 +97,6 @@ function fb_writeRec(_path, _data) {
         console.error('Error writing data: ', error);
     });
 }
-
 
 /*******************************************************/
 // fb_readRec
@@ -171,4 +167,53 @@ function fb_push(_path) {
     const DB = getDatabase();
     const REF = ref(DB, _path);
     return push(REF);
+}
+
+/*******************************************************/
+// fb_query
+// Query Firebase
+// Input: _path as a string (path to query), _limit as an integer (number of records to return)
+// Returns: snapshot.val() which is an object containing the data read
+/*******************************************************/
+function fb_query(_path, _limit) {
+    console.log('%c fb_query(): ',
+        'color: ' + COL_C + '; background-color: ' + COL_B + ';');
+
+    const DB = getDatabase();
+    const REF = query(ref(DB, _path), orderByChild('timestamp'), limitToLast(_limit));
+    return new Promise((resolve, reject) => {
+        get(REF).then((snapshot) => {
+            resolve(snapshot.val());
+        }).catch((error) => {
+            reject(error);
+        })
+    })
+}
+
+/*******************************************************/
+// fb_showMessages()
+// Read recent messages from database and display them
+// Input: N/A
+// Returns: N/A
+/*******************************************************/
+function fb_showMessages() {
+    const DB = getDatabase();
+
+    const messageQuery = query(ref(DB, `/messages`), orderByChild(`timestamp`), limitToLast(10));
+
+    onValue(messageQuery, (snapshot) => {
+        const CHATROOM = document.getElementById("chatroom");
+        CHATROOM.innerHTML = ""
+
+        const DATA = snapshot.val();
+        const MESSAGES = Object.entries(DATA);
+        console.log(MESSAGES);
+        for (let i = 0; i < 10; i++) {
+            let row = document.createElement(`li`);
+            row.innerHTML = `<li id="message${i}">${MESSAGES[i][1].username} says: ${MESSAGES[i][1].message}</li>`
+            // Timestamp can be converted to date and time later for flourish
+            CHATROOM.appendChild(row);
+        }
+    })
+
 }

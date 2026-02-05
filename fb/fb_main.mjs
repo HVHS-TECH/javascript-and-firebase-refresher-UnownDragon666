@@ -7,14 +7,13 @@ console.log('%cfb_main.mjs running', 'color: blue; background-color: white;');
 
 // Imports
 import {
-    fb_initialise, fb_writeRec, fb_readRec, fb_authenticate, 
-    fb_logout, getAuth,
-    fb_push
+    fb_initialise, fb_writeRec, fb_authenticate, fb_logout,
+    getAuth, fb_push, fb_query, fb_showMessages
 } from './fb_io.mjs';
 
 window.init = fb_initialise;
 window.upload = upload;
-window.showMessage = showMessage;
+window.showMessages = fb_showMessages;
 window.logout = fb_logout;
 
 /*******************************************************/
@@ -44,8 +43,3 @@ async function upload() {
     }
 }
 
-function showMessage() {
-    fb_readRec('/messages/message').then((data) => {
-        document.getElementById("message").innerHTML = data;
-    })
-}

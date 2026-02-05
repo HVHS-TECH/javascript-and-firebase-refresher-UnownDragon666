@@ -6,7 +6,7 @@
 </head>
 
 
-<body onload="init()">
+<body onload="init(), showMessages()">
 
     <h1 id="message">You haven't connected the JavaScript yet</h1>
 
@@ -14,21 +14,15 @@
     <h2>JavaScript</h2>
     <ul>
         <label for="i_text">TEXT INPUT</label> <br>
-        <input id="i_text" type="text" placeholder="ENTER TEXT">
-        <button onclick="buttonClick()">Submit</button> <br>
-        <button onclick="upload(), showMessage()">Upload</button>
+        <input id="i_text" type="text" placeholder="ENTER TEXT"><br><br>
+
+        <!-- Put login button with disabled upload, and change as required. -->
+
+        <button onclick="upload()">Upload</button>
         <button onclick="logout()">SignOut</button>
     </ul>
-    <h4>Firebase basics</h4>
-    <ul>
-        <li>Add a button - Make it save the text to Firebase </li>
-        <li>Add another button - Make it read the message from Firebase and write it to the heading of this page</li>
-    </ul>
-    <h4>Firebase logins</h4>
-    <ul>
-        <li>Use Google Authentication</li>
-        <li>Change what the first button does. Now it saves the text and the user who entered it</li>
-        <li>Change what the second button does. Now it displays all the messages and who added them</li>
+    <h4>Chatroom</h4>
+    <ul id="chatroom">
     </ul>
     <h4>Extension</h4>
     <ul>
