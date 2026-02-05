@@ -8,24 +8,29 @@ const COL_B = '#CD7F32';	//  console.log for functions scheme
 console.log('%cfb_io.mjs running', 'color: blue; background-color: white;');
 
 // Imports 
-import { getDatabase, ref, set, get, update, query, limitToLast, orderByChild, serverTimestamp, remove } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-database.js";
+import { getDatabase, ref, set, get, update, query, limitToLast, orderByChild, serverTimestamp, remove, push } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-database.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-app.js";
 import { GoogleAuthProvider, getAuth, signOut, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-auth.js";
 
 // Exports
 export var [database, app] = fb_initialise();
+export var auth = getAuth();
+
 export {
-    fb_initialise, fb_writeRec, fb_readRec, fb_profileAuthState,
-    fb_authenticate, fb_logout
+    fb_initialise, fb_writeRec, fb_readRec, fb_authState,
+    fb_authenticate, fb_logout, getAuth, fb_push
 };
 
 /*******************************************************/
 // fb_initialise()
 // Initialise connection to Firebase
-// Called by end_gameScoreScreen.html
 // Input: N/A
 // Returns: database, app
 /*******************************************************/
+
+
+
+
 function fb_initialise() {
     console.log('%c fb_initialise(): ',
         'color: ' + COL_C + '; background-color: ' + COL_B + ';');
@@ -52,41 +57,35 @@ function fb_initialise() {
 /*******************************************************/
 // fb_authenticate()
 // Authenticate with Google
-// Called in index.html, by button in sidebar
 // Input: N/A
 // Returns: N/A
 /*******************************************************/
-function fb_authenticate() {
+async function fb_authenticate() {
     console.log('%c fb_authenticate(): ',
         'color: ' + COL_C + '; background-color: ' + COL_B + ';');
 
-    return new Promise((resolve, reject) => {
-        const auth = getAuth();
-        const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                resolve(user);
-            } else {
-                signInWithPopup(auth, provider).then((result) => {
-                    console.log(result);
-                    auth.onAuthStateChanged((user) => {
-                        resolve(user);
-                    })
-                }).catch((error) => {
-                    reject(error);
-                });
-            }
-        })
-    })
+    try {
+        let result = await signInWithPopup(auth, provider)
+        console.log(result);
+    } catch (error) {
+        reject(error);
+    }
+
 }
 
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        
+    }
+})
 
 /*******************************************************/
 // fb_writeRec
 // Write record to Firebase
-// Called in many locations throughout project, including during authertication
+// Called in many locations throughout project, including during authentication
 // Input: _path as a string (path to write to), _data as an object (data to write)
 // Returns: N/A
 /*******************************************************/
@@ -94,8 +93,7 @@ function fb_writeRec(_path, _data) {
     console.log('%c fb_writeRec(): ',
         'color: ' + COL_C + '; background-color: ' + COL_B + ';');
 
-    const DB = getDatabase();
-    const REF = ref(DB, _path);
+    const REF = ref(database, _path);
     set(REF, _data).then(() => {
         console.log('Data written successfully');
     }).catch((error) => {
@@ -107,7 +105,6 @@ function fb_writeRec(_path, _data) {
 /*******************************************************/
 // fb_readRec
 // Read record from Firebase
-// Called in fb_authenticate to check if user exists
 // Input: _path as a string (path to read from)
 // Returns: snapshot.val() which is an object containing the data read
 /*******************************************************/
@@ -125,13 +122,12 @@ function fb_readRec(_path) {
 }
 
 /*******************************************************/
-// fb_profileAuthState()
-// Check if user is logged in
-// Called in gmAcc_profile.html
+// fb_authState()
+// Return user login state
 // Input: N/A
 // Returns: N/A
 /*******************************************************/
-function fb_profileAuthState() {
+function fb_authState() {
     const auth = getAuth();
     onAuthStateChanged(auth, (user) => {
         return new Promise((resolve, reject) => {
@@ -147,7 +143,6 @@ function fb_profileAuthState() {
 /*******************************************************/
 // fb_logout()
 // Log out of Firebase
-// Called in index.html, by button in sidebar
 // Input: N/A
 // Returns: N/A
 /*******************************************************/
@@ -163,3 +158,17 @@ function fb_logout() {
     });
 }
 
+/*******************************************************/
+// fb_push()
+// Generate message key
+// Input: _path
+// Returns: Unique message key
+/*******************************************************/
+function fb_push(_path) {
+    console.log('%c fb_push(): ',
+        'color: ' + COL_C + '; background-color: ' + COL_B + ';');
+
+    const DB = getDatabase();
+    const REF = ref(DB, _path);
+    return push(REF);
+}

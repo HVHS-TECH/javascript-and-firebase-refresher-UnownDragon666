@@ -7,8 +7,9 @@ console.log('%cfb_main.mjs running', 'color: blue; background-color: white;');
 
 // Imports
 import {
-    fb_initialise, fb_writeRec, fb_readRec, fb_profileAuthState,
-    fb_authenticate, fb_logout
+    fb_initialise, fb_writeRec, fb_readRec, fb_authenticate, 
+    fb_logout, getAuth,
+    fb_push
 } from './fb_io.mjs';
 
 window.init = fb_initialise;
@@ -22,17 +23,25 @@ window.logout = fb_logout;
 // Input: N/A
 // Returns: N/A
 /*******************************************************/
-function upload() {
+async function upload() {
     // If not logged in, authenticate
-    let user = fb_authenticate();
+    await fb_authenticate();
 
-    console.log(user);
+    let auth = getAuth();
+    if (auth.currentUser != null) {
+        console.log(auth.currentUser);
+        fb_writeRec(`/users/${auth.currentUser.uid}`, { username: auth.currentUser.displayName })
 
-    // Get message
-    let message = document.getElementById("i_text").value;
+        // Get message
+        let message = document.getElementById("i_text").value;
 
-    // Write message to database
-    fb_writeRec('/messages', { user: null, message: message, timestamp: Date.now() });
+        // Write message to database
+        const KEY = fb_push(`/messages`);
+        console.log(KEY);
+        fb_writeRec(`/messages/${KEY.key}`, { uid: auth.currentUser.uid, username: auth.currentUser.displayName, message: message, timestamp: Date.now() });
+    } else {
+        console.log("OH NO")
+    }
 }
 
 function showMessage() {
