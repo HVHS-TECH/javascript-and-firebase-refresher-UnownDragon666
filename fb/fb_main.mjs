@@ -8,7 +8,7 @@ console.log('%cfb_main.mjs running', 'color: blue; background-color: white;');
 // Imports
 import {
     fb_initialise, fb_writeRec, fb_authenticate, fb_logout,
-    getAuth, fb_push, fb_query, fb_showMessages
+    getAuth, fb_push, fb_showMessages
 } from './fb_io.mjs';
 
 window.init = fb_initialise;
@@ -33,13 +33,23 @@ async function upload() {
 
         // Get message
         let message = document.getElementById("i_text").value;
+        document.getElementById("i_text").value = "";
 
         // Write message to database
         const KEY = fb_push(`/messages`);
-        console.log(KEY);
         fb_writeRec(`/messages/${KEY.key}`, { uid: auth.currentUser.uid, username: auth.currentUser.displayName, message: message, timestamp: Date.now() });
     } else {
         console.log("OH NO")
     }
 }
 
+/*******************************************************/
+// filterUsers()
+// Filter messages from a specific user
+// Input: N/A
+// Returns: N/A
+/*******************************************************/
+async function filterUsers() {
+    
+
+}

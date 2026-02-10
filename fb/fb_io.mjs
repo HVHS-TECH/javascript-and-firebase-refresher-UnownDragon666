@@ -13,7 +13,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.9.4/firebase
 import { GoogleAuthProvider, getAuth, signOut, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-auth.js";
 
 // Exports
-export var [database, app] = fb_initialise();
+export var [DATABASE, APP] = fb_initialise();
 export var auth = getAuth();
 
 export {
@@ -90,7 +90,7 @@ function fb_writeRec(_path, _data) {
     console.log('%c fb_writeRec(): ',
         'color: ' + COL_C + '; background-color: ' + COL_B + ';');
 
-    const REF = ref(database, _path);
+    const REF = ref(DATABASE, _path);
     set(REF, _data).then(() => {
         console.log('Data written successfully');
     }).catch((error) => {
@@ -108,8 +108,7 @@ function fb_readRec(_path) {
     console.log('%c fb_readRec(): ',
         'color: ' + COL_C + '; background-color: ' + COL_B + ';');
 
-    const DB = getDatabase();
-    const REF = ref(DB, _path);
+    const REF = ref(DATABASE, _path);
     return get(REF).then((snapshot) => {
         return snapshot.val();
     }).catch((error) => {
@@ -164,23 +163,21 @@ function fb_push(_path) {
     console.log('%c fb_push(): ',
         'color: ' + COL_C + '; background-color: ' + COL_B + ';');
 
-    const DB = getDatabase();
-    const REF = ref(DB, _path);
+    const REF = ref(DATABASE, _path);
     return push(REF);
-}
+}   
 
 /*******************************************************/
 // fb_query
 // Query Firebase
-// Input: _path as a string (path to query), _limit as an integer (number of records to return)
+// Input: _path as a string (path to query), _limit as an integer (number of records to return), _child (to order by)
 // Returns: snapshot.val() which is an object containing the data read
 /*******************************************************/
-function fb_query(_path, _limit) {
+function fb_query(_path, _limit,) {
     console.log('%c fb_query(): ',
         'color: ' + COL_C + '; background-color: ' + COL_B + ';');
 
-    const DB = getDatabase();
-    const REF = query(ref(DB, _path), orderByChild('timestamp'), limitToLast(_limit));
+    const REF = query(ref(DATABASE, _path), orderByChild(_child), limitToLast(_limit));
     return new Promise((resolve, reject) => {
         get(REF).then((snapshot) => {
             resolve(snapshot.val());
@@ -197,9 +194,16 @@ function fb_query(_path, _limit) {
 // Returns: N/A
 /*******************************************************/
 function fb_showMessages() {
-    const DB = getDatabase();
+    console.log('%c fb_showMessages(): ',
+        'color: ' + COL_C + '; background-color: ' + COL_B + ';');
 
-    const messageQuery = query(ref(DB, `/messages`), orderByChild(`timestamp`), limitToLast(10));
+    // First get messages by a user if a filter is present:
+    // const FILTER = document.getElementById("i_filter").value;
+    // if (FILTER != "") {
+    //     let messageQuery = query(ref(DATABASE, `/messages`), orderByChild(`FILTER`), limitToLast(10));
+    // }
+
+    const messageQuery = query(ref(DATABASE, `/messages`), orderByChild(`timestamp`), limitToLast(10));
 
     onValue(messageQuery, (snapshot) => {
         const CHATROOM = document.getElementById("chatroom");
@@ -210,10 +214,22 @@ function fb_showMessages() {
         console.log(MESSAGES);
         for (let i = 0; i < 10; i++) {
             let row = document.createElement(`li`);
-            row.innerHTML = `<li id="message${i}">${MESSAGES[i][1].username} says: ${MESSAGES[i][1].message}</li>`
+            row.textContent = `${MESSAGES[i][1].username} says: ${MESSAGES[i][1].message}`
             // Timestamp can be converted to date and time later for flourish
             CHATROOM.appendChild(row);
         }
     })
+}
 
+/*******************************************************/
+// fb_filterUser()
+// Filter messages by user
+// Input: _user (user to filter by)
+// Returns: N/A
+/*******************************************************/
+function fb_filterUser(_user) {
+    console.log('%c fb_filterUser(): ',
+        'color: ' + COL_C + '; background-color: ' + COL_B + ';');
+
+    
 }
