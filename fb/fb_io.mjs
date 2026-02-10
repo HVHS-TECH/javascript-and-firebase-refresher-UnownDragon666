@@ -197,25 +197,10 @@ function fb_showMessages() {
     console.log('%c fb_showMessages(): ',
         'color: ' + COL_C + '; background-color: ' + COL_B + ';');
 
-    // let messageQuery;
+    // Filter messages by filtered user
+    const FILTERQUERY = query(ref(DATABASE, `/messages`), orderByChild)
 
-    // // First get messages by a user if a filter is present:
-    // const FILTER = document.getElementById("i_filter").value;
-    // if (FILTER != "") {
-    //     messageQuery = query(ref(DATABASE, `/messages`), orderByChild(`FILTER`), limitToLast(10));
-    // }
-
-    
-
-
-
-
-
-
-
-
-
-    const messageQuery = query(ref(DATABASE, `/messages`), orderByChild(`timestamp`), limitToLast(10));
+    // const messageQuery = query(ref(DATABASE, `/messages`), orderByChild(`timestamp`), limitToLast(10));
 
     onValue(messageQuery, (snapshot) => {
         const CHATROOM = document.getElementById("chatroom");
