@@ -27,6 +27,7 @@ async function upload() {
     await fb_authenticate();
 
     let auth = getAuth();
+    console.log(auth);
     if (auth.currentUser != null) {
         console.log(auth.currentUser);
         fb_writeRec(`/users/${auth.currentUser.uid}`, { username: auth.currentUser.displayName })
