@@ -40,7 +40,7 @@ async function upload() {
         const KEY = fb_push(`/messages`);
         fb_writeRec(`/messages/${KEY.key}`, { uid: auth.currentUser.uid, username: auth.currentUser.displayName, message: message, timestamp: Date.now() });
     } else {
-        console.log("OH NO")
+        console.error("User is null")
     }
 }
 

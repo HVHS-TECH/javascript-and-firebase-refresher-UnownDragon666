@@ -60,8 +60,7 @@ async function fb_authenticate() {
     console.log('%c fb_authenticate(): ',
         'color: ' + COL_C + '; background-color: ' + COL_B + ';');
 
-    if (getAuth() == null) {
-        console.log(getAuth());
+    if (getAuth().currentUser == null) {
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
 
@@ -198,13 +197,13 @@ function fb_showMessages() {
     console.log('%c fb_showMessages(): ',
         'color: ' + COL_C + '; background-color: ' + COL_B + ';');
 
-    let messageQuery;
+    // let messageQuery;
 
-    // First get messages by a user if a filter is present:
-    const FILTER = document.getElementById("i_filter").value;
-    if (FILTER != "") {
-        messageQuery = query(ref(DATABASE, `/messages`), orderByChild(`FILTER`), limitToLast(10));
-    }
+    // // First get messages by a user if a filter is present:
+    // const FILTER = document.getElementById("i_filter").value;
+    // if (FILTER != "") {
+    //     messageQuery = query(ref(DATABASE, `/messages`), orderByChild(`FILTER`), limitToLast(10));
+    // }
 
     
 
@@ -216,22 +215,22 @@ function fb_showMessages() {
 
 
 
-    // const messageQuery = query(ref(DATABASE, `/messages`), orderByChild(`timestamp`), limitToLast(10));
+    const messageQuery = query(ref(DATABASE, `/messages`), orderByChild(`timestamp`), limitToLast(10));
 
-    // onValue(messageQuery, (snapshot) => {
-    //     const CHATROOM = document.getElementById("chatroom");
-    //     CHATROOM.innerHTML = ""
+    onValue(messageQuery, (snapshot) => {
+        const CHATROOM = document.getElementById("chatroom");
+        CHATROOM.innerHTML = ""
 
-    //     const DATA = snapshot.val();
-    //     const MESSAGES = Object.entries(DATA);
-    //     console.log(MESSAGES);
-    //     for (let i = 0; i < 10; i++) {
-    //         let row = document.createElement(`li`);
-    //         row.textContent = `${MESSAGES[i][1].username} says: ${MESSAGES[i][1].message}`
-    //         // Timestamp can be converted to date and time later for flourish
-    //         CHATROOM.appendChild(row);
-    //     }
-    // })
+        const DATA = snapshot.val();
+        const MESSAGES = Object.entries(DATA);
+        console.log(MESSAGES);
+        for (let i = 0; i < 10; i++) {
+            let row = document.createElement(`li`);
+            row.textContent = `${MESSAGES[i][1].username} says: ${MESSAGES[i][1].message}`
+            // Timestamp can be converted to date and time later for flourish
+            CHATROOM.appendChild(row);
+        }
+    })
 }
 
 /*******************************************************/
