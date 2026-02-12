@@ -197,11 +197,8 @@ function fb_showMessages() {
     console.log('%c fb_showMessages(): ',
         'color: ' + COL_C + '; background-color: ' + COL_B + ';');
 
-    // Filter messages by filtered user
-    const FILTERQUERY = query(ref(DATABASE, `/messages`), orderByChild)
-
-    // const messageQuery = query(ref(DATABASE, `/messages`), orderByChild(`timestamp`), limitToLast(10));
-
+    const messageQuery = query(ref(DATABASE, `/messages`), orderByChild(`timestamp`), limitToLast(10));
+    
     onValue(messageQuery, (snapshot) => {
         const CHATROOM = document.getElementById("chatroom");
         CHATROOM.innerHTML = ""
