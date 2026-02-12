@@ -8,7 +8,7 @@ const COL_B = '#CD7F32';	//  console.log for functions scheme
 console.log('%cfb_io.mjs running', 'color: blue; background-color: white;');
 
 // Imports 
-import { getDatabase, ref, set, get, update, query, limitToLast, orderByChild, serverTimestamp, remove, push, onValue } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-database.js";
+import { getDatabase, ref, set, get, update, query, limitToLast, limitToFirst, orderByChild, serverTimestamp, remove, push, onValue } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-database.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-app.js";
 import { GoogleAuthProvider, getAuth, signOut, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.9.4/firebase-auth.js";
 
@@ -165,7 +165,7 @@ function fb_push(_path) {
 
     const REF = ref(DATABASE, _path);
     return push(REF);
-}   
+}
 
 /*******************************************************/
 // fb_query
@@ -197,33 +197,33 @@ function fb_showMessages() {
     console.log('%c fb_showMessages(): ',
         'color: ' + COL_C + '; background-color: ' + COL_B + ';');
 
-    const messageQuery = query(ref(DATABASE, `/messages`), orderByChild(`timestamp`), limitToLast(10));
-    
+    const messageQuery = query(ref(DATABASE, `/messages`), orderByChild(`timestamp`), limitToLast(500));
+
     onValue(messageQuery, (snapshot) => {
         const CHATROOM = document.getElementById("chatroom");
         CHATROOM.innerHTML = ""
 
         const DATA = snapshot.val();
         const MESSAGES = Object.entries(DATA);
-        console.log(MESSAGES);
+        
+        console.log(MESSAGES);  
+
+        // Filer the messages based on the user if the filter is set to a specific user, otherwise show all messages
+        let filteredMessages;
+        const FILTER = document.getElementById("i_filter").value;
+        if (FILTER != "") {
+            filteredMessages = MESSAGES.filter(MESSAGES => MESSAGES[1].username == FILTER);
+            console.log(filteredMessages);
+            filteredMessages.sort((a, b) => b[1].timestamp - a[1].timestamp);
+            filteredMessages = filteredMessages.slice(0, 10);
+            filteredMessages.reverse();
+        }
+
         for (let i = 0; i < 10; i++) {
             let row = document.createElement(`li`);
-            row.textContent = `${MESSAGES[i][1].username} says: ${MESSAGES[i][1].message}`
+            row.textContent = `${filteredMessages[i][1].username} says: ${filteredMessages[i][1].message}`
             // Timestamp can be converted to date and time later for flourish
             CHATROOM.appendChild(row);
         }
     })
-}
-
-/*******************************************************/
-// fb_filterUser()
-// Filter messages by user
-// Input: _user (user to filter by)
-// Returns: N/A
-/*******************************************************/
-function fb_filterUser(_user) {
-    console.log('%c fb_filterUser(): ',
-        'color: ' + COL_C + '; background-color: ' + COL_B + ';');
-
-    
 }
