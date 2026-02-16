@@ -217,6 +217,9 @@ function fb_showMessages() {
             filteredMessages.sort((a, b) => b[1].timestamp - a[1].timestamp);
             filteredMessages = filteredMessages.slice(0, 10);
             filteredMessages.reverse();
+        } else {
+            filteredMessages = MESSAGES;
+            filteredMessages.reverse();
         }
 
         for (let i = 0; i < 10; i++) {
